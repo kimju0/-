@@ -98,19 +98,23 @@ void mouse(ObjectID object, int x, int y, MouseAction action) {
 	}
 }
 
+void collision() {
+	a1 = fighter_coordinate[1] - 50;
+	a2 = fighter_coordinate[1] + 50;
+	b1 = fighter_coordinate[0] - 50;
+	b2 = fighter_coordinate[0] + 50;
+	if (bullet_x < a2 && bullet_x > a1 && bullet_y < b2 && bullet_y > b1) {
+		start = 0;
+		showMessage("lose");
+		showObject(startButton);
+	}
+}
+
 void timer(TimerID timer) {
 	if (start == 1) {
 		if (timer == bullet_move) {
 			bulletmove(1);
-			a1 = fighter_coordinate[1] - 50;
-			a2 = fighter_coordinate[1] + 50;
-			b1 = fighter_coordinate[0] - 50;
-			b2 = fighter_coordinate[0] + 50;
-			if (bullet_x < a2 && bullet_x > a1 && bullet_y < b2 && bullet_y > b1) {
-				start = 0;
-				showMessage("lose");
-				showObject(startButton);
-			}
+			collision();
 		}
 		else if (timer == bullet_make) {
 			bulletmake();
