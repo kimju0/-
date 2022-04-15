@@ -76,7 +76,7 @@ void bulletrandx(int maketime) {
 		locateObject(bullet, background, bullet_x, bullet_y);
 	} break;
 	case 4: {
-		bullet_y = 750;
+		bullet_y = 730;
 		locateObject(bullet, background, bullet_x, bullet_y);
 	} break;
 	}
@@ -87,6 +87,11 @@ void mouse(ObjectID object, int x, int y, MouseAction action) {
 		endGame();
 	else if (object == startButton) {
 		start = 1;
+		hideObject(startButton);
+		bullet_x = 0;
+		fighter_coordinate[0] = 450;
+		fighter_coordinate[1] = 1150;
+		locateObject(fighter, background, fighter_coordinate[1], fighter_coordinate[0]);
 		bulletrandx(maketime);
 		startTimer(bullet_move);
 		startTimer(bullet_make);
@@ -104,6 +109,7 @@ void timer(TimerID timer) {
 			if (bullet_x < a2 && bullet_x > a1 && bullet_y < b2 && bullet_y > b1) {
 				start = 0;
 				showMessage("lose");
+				showObject(startButton);
 			}
 		}
 		else if (timer == bullet_make) {
@@ -124,7 +130,7 @@ int main() {
 	background = createScene("background", "image/field.jpg");
 
 	startButton = createObject("image/start.png", background, 600, 150, true);
-	endButton = createObject("image/end.png", background, 750, 150, true);
+	endButton = createObject("image/end.png", background, 700, 150, true);
 	bullet = createObject("image/bullet.png", background, bullet_x, bullet_y, true);
 	fighter = createObject("image/jet-fighter.png", background, fighter_coordinate[1], fighter_coordinate[0], true);
 
