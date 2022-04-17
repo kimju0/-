@@ -136,6 +136,7 @@ void bulletmove(int x) {
 				showMessage("you win \n go to stage 4");
 			else {
 				showMessage("mission clear");
+				locateObject(endButton, background, 300, 150);
 				hideObject(startButton);
 			}
 		}
@@ -221,7 +222,6 @@ void timer(TimerID timer) {
 			collision(9);
 		}
 
-
 		if (timer == bullet_make[0]) {
 			bullet_num++;
 			startTimer(bullet_make[1]);
@@ -267,9 +267,6 @@ void timer(TimerID timer) {
 			startTimer(bullet_make[9]);
 			bulletmake(9);
 		}
-
-
-		
 
 	}
 	if (timer == bullet_reset && reset<10 ) {
