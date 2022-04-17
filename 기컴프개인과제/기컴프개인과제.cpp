@@ -7,7 +7,8 @@ SceneID background;
 SoundID sound;
 TimerID bullet_make[10], bullet_move[10], bullet_reset;
 int fighter_coordinate[2] = { 300, 550 }, bullet_x[10] = { 0,0,0,0,0,0,0,0,0,0 },
-bullet_y[10] = { 450, 450, 450, 450, 450, 450, 450, 450, 450, 450 }, a1, a2, b1, b2, bullet_num = 0, reset = 0 ;
+	bullet_y[10] = { 450, 450, 450, 450, 450, 450, 450, 450, 450, 450 }, a1, a2, b1, b2,
+	bullet_num = 0, reset = 0, end = 0, bullet_speed = 1;
 bool start = 0;
 
 ObjectID createObject(const char* image, SceneID scene, int x, int y, bool shown) {
@@ -89,6 +90,9 @@ void bulletrandx() {
 		locateObject(bullet[bullet_num], background, bullet_x[bullet_num], bullet_y[bullet_num]);
 		break;
 	}
+	if (bullet_num == 9)
+		end = 1;
+
 }
 
 void bulletmake(int x) {
@@ -104,26 +108,35 @@ void collision(int x) {
 	if (bullet_x[x] < a2 && bullet_x[x] > a1 && bullet_y[x] < b2 && bullet_y[x] > b1) {
 		start = 0;
 		showMessage("lose");
+		bullet_speed /= 2;
 		showObject(startButton);
 		locateObject(endButton, background, 340, 150);
 		
-
 		startTimer(bullet_reset);
 	}
 }
 
 void bulletmove(int x) {
-	bullet_x[x] += 1;
+	bullet_x[x] += bullet_speed;
 	locateObject(bullet[x], background, bullet_x[x], bullet_y[x]);
 	startTimer(bullet_move[x]);
-	if (bullet_x[x] > 570)
+	if (bullet_x[x] > 580) {
 		hideObject(bullet[x]);
+		if (end == 1 && bullet_x[9] > 570) {
+			startTimer(bullet_reset);
+			showMessage("you win \n go to next stage");
+			locateObject(endButton, background, 340, 150);
+			showObject(startButton);
+		}
+	}
 }
 
 void mouse(ObjectID object, int x, int y, MouseAction action) {
 	if (object == endButton)
 		endGame();
 	else if (object == startButton) {
+		end = 0;
+		bullet_speed *= 2;
 		start = 1;
 		reset = 0;
 		bullet_num = 0;
@@ -153,6 +166,7 @@ void mouse(ObjectID object, int x, int y, MouseAction action) {
 
 void timer(TimerID timer) {
 	if (start == 1) {
+
 		if (timer == bullet_move[0]) {
 			bulletmove(0);
 			collision(0);
@@ -248,7 +262,7 @@ void timer(TimerID timer) {
 	if (timer == bullet_reset && reset<10 ) {
 		stopTimer(bullet_move[reset]);
 		stopTimer(bullet_make[reset]);
-		setTimer(bullet_make[reset], 2.0f);
+		setTimer(bullet_make[reset], 1.0f);
 
 		bullet_x[reset] = 0;
 		bullet_y[reset] = 0;
@@ -293,26 +307,26 @@ int main() {
 
 	//bullet_move[]=createTimer(0.1f);  bullet_make[] = createTimer(2.0f);
 	{
-		bullet_move[0] = createTimer(0.1f);
-		bullet_make[0] = createTimer(2.0f);
-		bullet_move[1] = createTimer(0.1f);
-		bullet_make[1] = createTimer(2.0f);
-		bullet_move[2] = createTimer(0.1f);
-		bullet_make[2] = createTimer(2.0f);
-		bullet_move[3] = createTimer(0.1f);
-		bullet_make[3] = createTimer(2.0f);
-		bullet_move[4] = createTimer(0.1f);
-		bullet_make[4] = createTimer(2.0f);
-		bullet_move[5] = createTimer(0.1f);
-		bullet_make[5] = createTimer(2.0f);
-		bullet_move[6] = createTimer(0.1f);
-		bullet_make[6] = createTimer(2.0f);
-		bullet_move[7] = createTimer(0.1f);
-		bullet_make[7] = createTimer(2.0f);
-		bullet_move[8] = createTimer(0.1f);
-		bullet_make[8] = createTimer(2.0f);
-		bullet_move[9] = createTimer(0.1f);
-		bullet_make[9] = createTimer(2.0f);
+		bullet_move[0] = createTimer(0.01f);
+		bullet_make[0] = createTimer(1.0f);
+		bullet_move[1] = createTimer(0.01f);
+		bullet_make[1] = createTimer(1.0f);
+		bullet_move[2] = createTimer(0.01f);
+		bullet_make[2] = createTimer(1.0f);
+		bullet_move[3] = createTimer(0.01f);
+		bullet_make[3] = createTimer(1.0f);
+		bullet_move[4] = createTimer(0.01f);
+		bullet_make[4] = createTimer(1.0f);
+		bullet_move[5] = createTimer(0.01f);
+		bullet_make[5] = createTimer(1.0f);
+		bullet_move[6] = createTimer(0.01f);
+		bullet_make[6] = createTimer(1.0f);
+		bullet_move[7] = createTimer(0.01f);
+		bullet_make[7] = createTimer(1.0f);
+		bullet_move[8] = createTimer(0.01f);
+		bullet_make[8] = createTimer(1.0f);
+		bullet_move[9] = createTimer(0.01f);
+		bullet_make[9] = createTimer(1.0f);
 	}
 
 	bullet_reset = createTimer(0.01f);
