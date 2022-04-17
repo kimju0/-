@@ -5,9 +5,9 @@
 ObjectID startButton, endButton, bullet[10], fighter;
 SceneID background;
 SoundID sound;
-TimerID bullet_make[10], bullet_move[10];
-int fighter_coordinate[2] = { 450, 1150 }, bullet_x[10] = { 0,0,0,0,0,0,0,0,0,0 },
-bullet_y[10] = { 450, 450, 450, 450, 450, 450, 450, 450, 450, 450 }, a1, a2, b1, b2, bullet_num = 0;
+TimerID bullet_make[10], bullet_move[10], bullet_reset;
+int fighter_coordinate[2] = { 300, 550 }, bullet_x[10] = { 0,0,0,0,0,0,0,0,0,0 },
+bullet_y[10] = { 450, 450, 450, 450, 450, 450, 450, 450, 450, 450 }, a1, a2, b1, b2, bullet_num = 0, reset = 0 ;
 bool start = 0;
 
 ObjectID createObject(const char* image, SceneID scene, int x, int y, bool shown) {
@@ -18,19 +18,36 @@ ObjectID createObject(const char* image, SceneID scene, int x, int y, bool shown
 	return object;
 }
 
+//fighter_coordinate[0] > 0 && fighter_coordinate[0] < 550 && fighter_coordinate[1] > 0 && fighter_coordinate[1] < 590
+
 void fightermove(char move) {
-	if (move == 'U')
-		fighter_coordinate[0]+= 10;
-	locateObject(fighter, background, fighter_coordinate[1], fighter_coordinate[0]);
-	if (move == 'D')
-		fighter_coordinate[0]-= 10;
-	locateObject(fighter, background, fighter_coordinate[1], fighter_coordinate[0]);
-	if (move == 'R')
-		fighter_coordinate[1]+= 10;
-	locateObject(fighter, background, fighter_coordinate[1], fighter_coordinate[0]);
-	if (move == 'L')
-		fighter_coordinate[1]-= 10;
-	locateObject(fighter, background, fighter_coordinate[1], fighter_coordinate[0]);
+	if (move == 'U') {
+		fighter_coordinate[0] += 10;
+		if (fighter_coordinate[0] > 580)
+			fighter_coordinate[0] -= 10;
+		locateObject(fighter, background, fighter_coordinate[1], fighter_coordinate[0]);
+	}
+
+	if (move == 'D') {
+		fighter_coordinate[0] -= 10;
+		if (fighter_coordinate[0] < 0)
+			fighter_coordinate[0] += 10;
+		locateObject(fighter, background, fighter_coordinate[1], fighter_coordinate[0]);
+	}
+
+	if (move == 'R') {
+		fighter_coordinate[1] += 10;
+		if (fighter_coordinate[1] > 570)
+			fighter_coordinate[1] -= 10;
+		locateObject(fighter, background, fighter_coordinate[1], fighter_coordinate[0]);
+	}
+
+	if (move == 'L') {
+		fighter_coordinate[1] -= 10;
+		if (fighter_coordinate[1] < 10)
+			fighter_coordinate[1] += 10;
+		locateObject(fighter, background, fighter_coordinate[1], fighter_coordinate[0]);
+	}
 }
 
 void keyboard(KeyCode key, KeyState state) {
@@ -49,25 +66,26 @@ void keyboard(KeyCode key, KeyState state) {
 void bulletrandx() {
 	showObject(bullet[bullet_num]);
 	srand(time(NULL));
+	bullet_x[bullet_num] = 0;
 	switch (rand() % 5) {
 	case 0:
 		bullet_y[bullet_num] = 75;
 		locateObject(bullet[bullet_num], background, bullet_x[bullet_num], bullet_y[bullet_num]);
 		break;
 	case 1:
-		bullet_y[bullet_num] = 244;
+		bullet_y[bullet_num] = 280;
 		locateObject(bullet[bullet_num], background, bullet_x[bullet_num], bullet_y[bullet_num]);
 		break;
 	case 2: 
-		bullet_y[bullet_num] = 413;
+		bullet_y[bullet_num] = 380;
 		locateObject(bullet[bullet_num], background, bullet_x[bullet_num], bullet_y[bullet_num]);
 		break;
 	case 3:
-		bullet_y[bullet_num] = 582;
+		bullet_y[bullet_num] = 480;
 		locateObject(bullet[bullet_num], background, bullet_x[bullet_num], bullet_y[bullet_num]);
 		break;
 	case 4:
-		bullet_y[bullet_num] = 730;
+		bullet_y[bullet_num] = 582;
 		locateObject(bullet[bullet_num], background, bullet_x[bullet_num], bullet_y[bullet_num]);
 		break;
 	}
@@ -76,18 +94,21 @@ void bulletrandx() {
 void bulletmake(int x) {
 	bullet_x[x] = 0;
 	bulletrandx();
-	startTimer(bullet_make[bullet_num]);
 }
 
 void collision(int x) {
-	a1 = fighter_coordinate[1] - 50;
-	a2 = fighter_coordinate[1] + 50;
-	b1 = fighter_coordinate[0] - 50;
-	b2 = fighter_coordinate[0] + 50;
+	a1 = fighter_coordinate[1] - 30;
+	a2 = fighter_coordinate[1] + 30;
+	b1 = fighter_coordinate[0] - 30;
+	b2 = fighter_coordinate[0] + 30;
 	if (bullet_x[x] < a2 && bullet_x[x] > a1 && bullet_y[x] < b2 && bullet_y[x] > b1) {
 		start = 0;
 		showMessage("lose");
 		showObject(startButton);
+		locateObject(endButton, background, 340, 150);
+		
+
+		startTimer(bullet_reset);
 	}
 }
 
@@ -95,7 +116,8 @@ void bulletmove(int x) {
 	bullet_x[x] += 1;
 	locateObject(bullet[x], background, bullet_x[x], bullet_y[x]);
 	startTimer(bullet_move[x]);
-
+	if (bullet_x[x] > 570)
+		hideObject(bullet[x]);
 }
 
 void mouse(ObjectID object, int x, int y, MouseAction action) {
@@ -103,16 +125,19 @@ void mouse(ObjectID object, int x, int y, MouseAction action) {
 		endGame();
 	else if (object == startButton) {
 		start = 1;
+		reset = 0;
+		bullet_num = 0;
 		hideObject(startButton);
-		bullet_x[bullet_num] = 0;
-		fighter_coordinate[0] = 450;
-		fighter_coordinate[1] = 1150;
+		fighter_coordinate[0] = 300;
+		fighter_coordinate[1] = 550;
 		locateObject(fighter, background, fighter_coordinate[1], fighter_coordinate[0]);
+		locateObject(endButton, background, 300, 100);
 		bulletrandx();
 		//starttimer
 		{
-			startTimer(bullet_move[0]);
 			startTimer(bullet_make[0]);
+			
+			startTimer(bullet_move[0]);
 			startTimer(bullet_move[1]);
 			startTimer(bullet_move[2]);
 			startTimer(bullet_move[3]);
@@ -172,6 +197,7 @@ void timer(TimerID timer) {
 
 		if (timer == bullet_make[0]) {
 			bullet_num++;
+			startTimer(bullet_make[1]);
 			bulletmake(1);
 		}
 		else if (timer == bullet_make[1]) {
@@ -214,7 +240,23 @@ void timer(TimerID timer) {
 			startTimer(bullet_make[9]);
 			bulletmake(9);
 		}
+
+
+		
+
 	}
+	if (timer == bullet_reset && reset<10 ) {
+		stopTimer(bullet_move[reset]);
+		stopTimer(bullet_make[reset]);
+		setTimer(bullet_make[reset], 2.0f);
+
+		bullet_x[reset] = 0;
+		bullet_y[reset] = 0;
+		locateObject(bullet[reset], background, bullet_x[reset], bullet_y[reset]);
+		hideObject(bullet[reset]);
+		reset++;
+		startTimer(bullet_reset);
+		}
 }
 
 int main() {
@@ -229,10 +271,10 @@ int main() {
 	setKeyboardCallback(keyboard);
 	setTimerCallback(timer);
 
-	background = createScene("background", "image/field.jpg");
+	background = createScene("background", "image/background.jpg");
 
-	startButton = createObject("image/start.png", background, 600, 150, true);
-	endButton = createObject("image/end.png", background, 700, 150, true);
+	startButton = createObject("image/start.png", background, 250, 150, true);
+	endButton = createObject("image/end.png", background, 340, 150, true);
 	fighter = createObject("image/jet-fighter.png", background, fighter_coordinate[1], fighter_coordinate[0], true);
 	
 	//bullet[] = createObject("image/bullet.png", background, bullet_x[], bullet_y[], false);
@@ -272,6 +314,8 @@ int main() {
 		bullet_move[9] = createTimer(0.1f);
 		bullet_make[9] = createTimer(2.0f);
 	}
+
+	bullet_reset = createTimer(0.01f);
 
 	startGame(background);
 }
