@@ -111,6 +111,7 @@ void collision(int x) {
 		showMessage("lose");
 		bullet_speed /= 2;
 		make *= 1.5;
+		stage_num--;
 		showObject(startButton);
 		locateObject(endButton, background, 340, 150);
 		
